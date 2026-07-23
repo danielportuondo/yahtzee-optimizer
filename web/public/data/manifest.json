@@ -1,0 +1,90 @@
+{
+  "format_version": 1,
+  "index_formula": "mask * 128 + eligible * 64 + upper",
+  "axes": {
+    "mask": {
+      "bits": "7+",
+      "range": [
+        0,
+        8191
+      ],
+      "stride": 128
+    },
+    "eligible": {
+      "range": [
+        0,
+        1
+      ],
+      "stride": 64,
+      "meaning": "1 if the Yahtzee box holds 50 (future Yahtzees earn +100)"
+    },
+    "upper": {
+      "range": [
+        0,
+        63
+      ],
+      "stride": 1,
+      "cap": 63
+    }
+  },
+  "state_count": 1048576,
+  "v": {
+    "file": "v.f32",
+    "dtype": "float32",
+    "byte_order": "little",
+    "length": 1048576,
+    "unreachable": "NaN"
+  },
+  "transitions": {
+    "file": "transitions.f32",
+    "dtype": "float32",
+    "byte_order": "little",
+    "shape": [
+      462,
+      252
+    ],
+    "layout": "row-major (keep-major)",
+    "empty_keep_index": 0
+  },
+  "rolls": {
+    "file": "rolls.json",
+    "count": 252,
+    "ordering": "combinations_with_replacement(range(6), 5); face f -> count index f-1"
+  },
+  "keeps": {
+    "file": "keeps.json",
+    "count": 462,
+    "ordering": "combinations_with_replacement grouped by ascending size; index 0 = empty"
+  },
+  "ordering": {
+    "multisets": "itertools.combinations_with_replacement(range(6), size)",
+    "keeps_grouped_by": "ascending size",
+    "face_to_index": "face f -> index f-1",
+    "sub_multiset_rule": "keep[f] <= roll[f] for all faces f"
+  },
+  "categories": {
+    "ACES": 0,
+    "TWOS": 1,
+    "THREES": 2,
+    "FOURS": 3,
+    "FIVES": 4,
+    "SIXES": 5,
+    "THREE_OF_A_KIND": 6,
+    "FOUR_OF_A_KIND": 7,
+    "FULL_HOUSE": 8,
+    "SMALL_STRAIGHT": 9,
+    "LARGE_STRAIGHT": 10,
+    "YAHTZEE": 11,
+    "CHANCE": 12
+  },
+  "bonuses": {
+    "upper_threshold": 63,
+    "upper_bonus": 35,
+    "yahtzee_bonus": 100
+  },
+  "golden": {
+    "optimal_expected_score": 254.5877287344956,
+    "empty_state_index": 0
+  },
+  "note": "V uses a 3-axis state (mask, eligible, upper); this supersedes handoff \u00a75's 2-axis formula mask*64+upper, which omitted the Yahtzee-eligibility axis."
+}
