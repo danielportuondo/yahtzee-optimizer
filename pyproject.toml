@@ -1,0 +1,16 @@
+[project]
+name = "yahtzee-optimizer"
+version = "0.1.0"
+description = "Optimal solitaire Yahtzee solver — Phase 1: Python DP core"
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0"]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["solver/tests"]
