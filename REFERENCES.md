@@ -24,5 +24,8 @@ build (updated in the same commit that introduces a new dependency or source).
 
 ## Validation references
 
-- Optimal solitaire Yahtzee expected score **≈ 254.59** (Verhoeff ruleset: Yahtzee bonus = 100,
-  joker rules on). Reproduced by our solver's empty-scorecard `V` as the correctness benchmark.
+- Optimal solitaire Yahtzee expected score **≈ 254.59** (Verhoeff / Hasbro ruleset: Yahtzee
+  bonus = 100, forced joker rules on). The precise value is **254.587729**.
+- Our solver's empty-scorecard `V` computes **254.587729**, matching the Ballpark-Figures
+  reference implementation (which reports 254.587729 in float64 / 254.5877227783203 in float32).
+  This is the project's correctness benchmark (`solver/tests/test_golden.py`).
