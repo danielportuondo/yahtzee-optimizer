@@ -18,9 +18,22 @@ build (updated in the same commit that introduces a new dependency or source).
   DP; required for feasible offline runtime.
 - **pytest** (≥ 8.0, dev) — test runner.
 
+### Frontend (`web/`)
+
+- **TypeScript** (5.7) — the within-turn engine and the app; mirrors the Python solver.
+- **Vitest** (3) — engine unit tests + the Python↔TS cross-check.
+- **Vite** (7) + **@vitejs/plugin-react** (5) — build tooling and dev server. Static export only
+  (no SSR/backend) so the site hosts for $0. `base` is the GitHub Pages project subpath.
+- **React** (19) — UI. Framework-agnostic engine, so the choice is isolated to `web/src/{features,design}`.
+- **@fontsource-variable/space-grotesk**, **@fontsource-variable/jetbrains-mono** — self-hosted
+  fonts (no external requests): Space Grotesk for display, JetBrains Mono for all numerics.
+
 ## Tools & skills used
 
-- (Phase 1: none beyond the above.)
+- **`frontend-design` skill** — drove the "probability instrument" visual direction (tokens,
+  typography, the dice-ignite signature) instead of generic styling (Phase 4).
+- **Playwright** (via MCP) — live visual verification of the Turn Optimizer (desktop + mobile,
+  all three roll states).
 
 ## Validation references
 
@@ -52,3 +65,28 @@ enumeration files directly (rather than regenerating) so the canonical ordering 
 - Scoring is **not** exported — TS reimplements `score_category` and is cross-checked against
   Python (Phase 3). The `categories` name→index map in `manifest.json` pins the enum ordering.
 - Data files are committed alongside the code so the frontend and table never drift (§5).
+
+## TypeScript engine (Phase 3)
+
+`web/src/engine/` ports the within-turn DP + scoring from the Python solver (the source of truth
+for `V`) so the live tool needs no server. It loads the exported tables and reproduces
+`turnValue`; parity is the Phase-3 exit gate.
+
+- **Cross-check** — `solver/crosscheck.py` emits `__fixtures__/crosscheck.json`; `crosscheck.test.ts`
+  asserts scoring is bit-identical to Python, turn EVs agree within float32 tolerance, and the
+  loaded `V` self-reproduces. Golden empty-state EV = **254.5877**.
+- **`parseEngineData`** is environment-agnostic (bytes + parsed JSON). The Node `fs` loader lives
+  in `engine/dataNode.ts` (test-only); the browser `fetch` loader in `src/data/loadFromUrl.ts`.
+
+## Recommendation API + Turn Optimizer (Phase 4)
+
+- **`GameEngine.recommend(state, dice, rollNumber)`** — surfaces the optimal keep (rolls 1–2) or
+  category (roll 3) with EV-ranked alternatives. It adds no DP math: it retains the intermediate
+  arrays `turnValue` already computes, so it inherits the Python cross-check. `recommend.test.ts`
+  pins this via the identity `Σ rollProb · best.ev == turnValue`.
+- **App** — `web/src/features/turn-optimizer/` (feature 1) on `web/src/design/` tokens. The
+  scorecard input derives `upper` from the dice booked in each box, keeping every constructed
+  `(mask, eligible, upper)` state reachable (no `NaN` V lookups).
+- **Deploy** — `.github/workflows/deploy.yml` builds `web/` and publishes `web/dist` to GitHub
+  Pages ($0 static hosting). The loader uses `import.meta.env.BASE_URL`, so a later move to a
+  custom domain needs no code change.
