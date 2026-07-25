@@ -1,15 +1,14 @@
 /**
  * Loads and validates the solver's exported tables (see `web/public/data/manifest.json`).
  *
- * `parseEngineData` is environment-agnostic (takes raw bytes + parsed JSON); `loadEngineDataFromDir`
- * is a Node helper used by the tests. A browser `fetch` loader is deferred to the UI phase.
+ * `parseEngineData` is environment-agnostic (takes raw bytes + parsed JSON) and browser-safe.
+ * The Node `fs` loader lives in `dataNode.ts` (test-only); the browser `fetch` loader in
+ * `../data/loadFromUrl.ts`. Keeping node imports out of this module keeps the bundle clean.
  *
  * Binary blobs (`v.f32`, `transitions.f32`) are little-endian float32. Every realistic host is
  * little-endian; we assert that rather than paying DataView overhead for ~1M floats.
  */
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   Category,
   NUM_KEEPS,
@@ -125,13 +124,4 @@ export function parseEngineData(input: {
   }
 
   return { V, T, rolls, keeps, manifest };
-}
-
-export function loadEngineDataFromDir(dir: string): EngineData {
-  const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as Manifest;
-  const rolls = JSON.parse(readFileSync(join(dir, "rolls.json"), "utf8")) as Counts[];
-  const keeps = JSON.parse(readFileSync(join(dir, "keeps.json"), "utf8")) as Counts[];
-  const vBytes = readFileSync(join(dir, manifest.v.file));
-  const transitionsBytes = readFileSync(join(dir, manifest.transitions.file));
-  return parseEngineData({ vBytes, transitionsBytes, rolls, keeps, manifest });
 }

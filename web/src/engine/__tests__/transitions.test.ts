@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { loadEngineDataFromDir } from "../data.js";
+import { loadEngineDataFromDir } from "../dataNode.js";
 import { Transitions } from "../transitions.js";
 import { NUM_KEEPS, NUM_ROLLS } from "../types.js";
 

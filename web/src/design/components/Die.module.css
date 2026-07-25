@@ -1,0 +1,74 @@
+.die {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--die-size, 4.75rem);
+  height: var(--die-size, 4.75rem);
+  border: none;
+  border-radius: var(--r-die);
+  background: linear-gradient(158deg, var(--bone-hi) 0%, var(--bone) 46%, var(--bone-lo) 100%);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 -3px 6px rgba(120, 105, 70, 0.28) inset,
+    0 6px 14px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+  touch-action: manipulation;
+}
+
+.die:hover {
+  transform: translateY(-2px);
+}
+
+.die:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Optimizer says HOLD: the die ignites amber. This is the page's signature moment. */
+.recommended {
+  box-shadow:
+    0 0 0 2px var(--optimal) inset,
+    0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 0 0 4px var(--optimal-weak),
+    0 8px 26px var(--optimal-glow);
+}
+
+.pips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 70%;
+  height: 70%;
+  gap: 7%;
+}
+
+.slot {
+  display: grid;
+  place-items: center;
+}
+
+.pip {
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a3f4c 0%, var(--pip) 60%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.tag {
+  position: absolute;
+  top: -0.62rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--optimal);
+  color: var(--optimal-ink);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}

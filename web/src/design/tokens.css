@@ -1,0 +1,137 @@
+/*
+ * Design tokens — "probability instrument".
+ * Deep cool-slate chassis, warm bone-ivory dice as the one warm mass, and two semantic
+ * accents: amber = the optimal decision, cyan-mint = quantitative EV/probability. All numerics
+ * are set in mono; the display face carries the character. Values, not decoration.
+ */
+
+:root {
+  /* Chassis */
+  --ink: #0f121a;
+  --panel: #161b25;
+  --panel-2: #1e2533;
+  --trough: #0a0d13;
+  --line: #29313f;
+  --line-strong: #3a4456;
+
+  /* Ink on chassis */
+  --text: #e8e6de;
+  --text-dim: #98a2b3;
+  --text-faint: #5f6979;
+
+  /* Dice — the warm mass */
+  --bone: #f1ead9;
+  --bone-hi: #fbf6ea;
+  --bone-lo: #d6ccb6;
+  --pip: #1b1f29;
+
+  /* Accent 1 — the optimal decision */
+  --optimal: #f5b62e;
+  --optimal-bright: #ffca52;
+  --optimal-ink: #2a1e02;
+  --optimal-glow: rgba(245, 182, 46, 0.34);
+  --optimal-weak: rgba(245, 182, 46, 0.12);
+
+  /* Accent 2 — quantitative data */
+  --data: #4fd6c0;
+  --data-bright: #74e9d5;
+  --data-weak: rgba(79, 214, 192, 0.12);
+
+  /* Type */
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --fs-eyebrow: 0.72rem;
+  --fs-small: 0.82rem;
+  --fs-body: 1rem;
+  --fs-h3: 1.25rem;
+  --fs-h2: clamp(1.5rem, 3vw, 1.9rem);
+  --fs-h1: clamp(2.1rem, 5vw, 3.1rem);
+  --fs-readout: clamp(2.6rem, 8vw, 4.4rem);
+
+  --tracking-eyebrow: 0.2em;
+
+  /* Space */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-die: 15px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 220ms;
+
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #141a26 0%, var(--ink) 55%) fixed;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--data);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Numeric tabular figures everywhere they appear. */
+.tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -2,12 +2,7 @@
 
 export * from "./types.js";
 export { scoreCategory, sumOfDice, isYahtzee } from "./scoring.js";
-export {
-  parseEngineData,
-  loadEngineDataFromDir,
-  type EngineData,
-  type Manifest,
-} from "./data.js";
+export { parseEngineData, type EngineData, type Manifest } from "./data.js";
 export { Transitions } from "./transitions.js";
 export { GameEngine } from "./gameDp.js";
 export type {

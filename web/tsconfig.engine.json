@@ -1,12 +1,11 @@
 {
-  "//": "App config: DOM + React JSX for UI code (and the engine, which stays DOM-clean under tsconfig.engine.json). Picked up by the editor, Vite, and `vite build`.",
+  "//": "Strict, DOM-free typecheck for the framework-agnostic compute engine. Guards against accidental browser-API use in engine code. Run by `npm run typecheck`.",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "vite/client"],
-    "jsx": "react-jsx",
+    "lib": ["ES2022"],
+    "types": ["node"],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -16,5 +15,5 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src/engine"]
 }

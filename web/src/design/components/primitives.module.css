@@ -1,0 +1,107 @@
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--panel) 0%, #131822 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--sp-5);
+}
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-4);
+}
+
+.panelTitle {
+  font-size: var(--fs-h3);
+}
+
+/* EV readout — the instrument's primary gauge. */
+.readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.readoutLabel {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.readoutValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: var(--fs-readout);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color var(--dur) var(--ease);
+}
+
+.toneData {
+  color: var(--data);
+}
+
+.toneOptimal {
+  color: var(--optimal);
+}
+
+.readoutUnit {
+  font-size: 0.4em;
+  color: var(--text-dim);
+  margin-left: 0.35em;
+  letter-spacing: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-strong);
+  background: var(--panel-2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  border-color: var(--data);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btnPrimary {
+  background: var(--optimal);
+  border-color: var(--optimal);
+  color: var(--optimal-ink);
+  font-weight: 700;
+}
+
+.btnPrimary:hover {
+  background: var(--optimal-bright);
+  border-color: var(--optimal-bright);
+}

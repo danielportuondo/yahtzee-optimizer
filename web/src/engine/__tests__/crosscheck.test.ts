@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { loadEngineDataFromDir } from "../data.js";
+import { loadEngineDataFromDir } from "../dataNode.js";
 import { GameEngine } from "../gameDp.js";
 import { scoreCategory } from "../scoring.js";
 import type { Category, Counts } from "../types.js";
