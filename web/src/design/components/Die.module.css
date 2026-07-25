@@ -35,6 +35,24 @@
     0 8px 26px var(--optimal-glow);
 }
 
+/* Player is holding this die (game mode): cyan-mint = your action, distinct from amber advice. */
+.held {
+  box-shadow:
+    0 0 0 2px var(--data) inset,
+    0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 0 0 4px var(--data-weak),
+    0 8px 26px rgba(79, 214, 192, 0.3);
+}
+
+/* Coach overlap — you held the die the optimizer recommends: cyan fill, amber ring. */
+.held.recommended {
+  box-shadow:
+    0 0 0 2px var(--optimal) inset,
+    0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 0 0 4px var(--data-weak),
+    0 8px 26px var(--optimal-glow);
+}
+
 .pips {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -71,4 +89,9 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   white-space: nowrap;
+}
+
+.tagHeld {
+  background: var(--data);
+  color: var(--ink);
 }
