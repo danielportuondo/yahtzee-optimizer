@@ -10,3 +10,9 @@ export {
 } from "./data.js";
 export { Transitions } from "./transitions.js";
 export { GameEngine } from "./gameDp.js";
+export type {
+  TurnState,
+  KeepOption,
+  CategoryOption,
+  Recommendation,
+} from "./recommend.js";

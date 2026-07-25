@@ -14,16 +14,48 @@
 
 import {
   Category,
+  HAND_SIZE,
   NUM_CATEGORIES,
+  NUM_FACES,
   NUM_ROLLS,
   UPPER_BONUS,
   UPPER_BONUS_THRESHOLD,
   YAHTZEE_BIT,
   YAHTZEE_BONUS,
+  type Counts,
 } from "./types.js";
 import type { EngineData } from "./data.js";
 import { Transitions } from "./transitions.js";
 import { isYahtzee, scoreCategory } from "./scoring.js";
+import type {
+  CategoryOption,
+  KeepOption,
+  Recommendation,
+  TurnState,
+} from "./recommend.js";
+
+function countsFromDice(dice: number[]): Counts {
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const d of dice) {
+    if (d < 1 || d > NUM_FACES) throw new Error(`die face out of range: ${d}`);
+    counts[d - 1]++;
+  }
+  return counts;
+}
+
+/** Which physical dice to hold to realize a keep multiset (same-face dice interchangeable). */
+function mapKeepToDice(keep: Counts, dice: number[]): number[] {
+  const need = keep.slice();
+  const held: number[] = [];
+  for (let i = 0; i < dice.length; i++) {
+    const f = dice[i] - 1;
+    if (need[f] > 0) {
+      held.push(i);
+      need[f]--;
+    }
+  }
+  return held;
+}
 
 export class GameEngine {
   readonly data: EngineData;
@@ -67,10 +99,16 @@ export class GameEngine {
   }
 
   /**
-   * Best value of scoring an extra Yahtzee (five `face`s) under the Hasbro joker rule. The
-   * Yahtzee box is already filled; the +100 bonus applies iff `elig`. Mirrors game_dp.py:83-113.
+   * Per-category options for scoring an extra Yahtzee (five `face`s) under the Hasbro joker
+   * rule. The Yahtzee box is already filled; the +100 bonus applies iff `elig`. The legal
+   * placement set follows game_dp.py:83-113. `score` is the points booked this turn.
    */
-  jokerBest(mask: number, elig: number, upper: number, face: number): number {
+  private jokerOptions(
+    mask: number,
+    elig: number,
+    upper: number,
+    face: number,
+  ): CategoryOption[] {
     const bonus = elig ? YAHTZEE_BONUS : 0;
 
     let legal: number[];
@@ -88,7 +126,7 @@ export class GameEngine {
     }
 
     const hand = this.yahHand[face];
-    let best = -Infinity;
+    const options: CategoryOption[] = [];
     for (const c of legal) {
       const newMask = mask | (1 << c);
       const base = this.baseJoker[c * NUM_ROLLS + hand];
@@ -105,21 +143,36 @@ export class GameEngine {
         upBonus = 0;
       }
       const reward = base + bonus + upBonus;
-      const cand = reward + this.V[this.stateIndex(newMask, elig, newUpper)];
-      if (cand > best) best = cand;
+      const ev = reward + this.V[this.stateIndex(newMask, elig, newUpper)];
+      options.push({ category: c as Category, score: reward, ev });
+    }
+    return options;
+  }
+
+  /**
+   * Best value of scoring an extra Yahtzee (five `face`s) under the Hasbro joker rule.
+   * Mirrors game_dp.py:83-113 (the max over `jokerOptions`).
+   */
+  jokerBest(mask: number, elig: number, upper: number, face: number): number {
+    let best = -Infinity;
+    for (const o of this.jokerOptions(mask, elig, upper, face)) {
+      if (o.ev > best) best = o.ev;
     }
     return best;
   }
 
-  /** Expected value of one optimal turn from `(mask, elig, upper)`. Mirrors game_dp.py:116-149. */
-  turnValue(
+  /**
+   * Roll-3 must-score value of each of the 252 final hands (the DP's `e3`): for every hand,
+   * the best `immediate_score(cat) + V(next state)` over the open categories. Mirrors the
+   * `e3` construction of game_dp.py:122-163, incl. the box-filled joker override.
+   */
+  private computeE3(
     mask: number,
     unused: number[],
     elig: number,
     upper: number,
     boxFilled: boolean,
-  ): number {
-    // Roll 3 (must score): value of each of the 252 final hands.
+  ): Float64Array {
     const e3 = new Float64Array(NUM_ROLLS).fill(-Infinity);
     for (const c of unused) {
       const newMask = mask | (1 << c);
@@ -161,10 +214,42 @@ export class GameEngine {
         e3[this.yahHand[face]] = this.jokerBest(mask, elig, upper, face);
       }
     }
+    return e3;
+  }
 
-    // Rolls 2 and 1: choose the keep set maximizing expected downstream value.
-    const e2 = this.transitions.bestKeepValue(this.transitions.matvecT(e3));
-    const e1 = this.transitions.bestKeepValue(this.transitions.matvecT(e2));
+  /**
+   * The within-turn DP intermediates for one state. `keepValues3` / `keepValues2` are the
+   * per-keep expected values that drive the roll-2 / roll-1 keep decisions; `e1` is the
+   * per-hand value at the start of the turn. `turnValue` and `recommend` share this.
+   */
+  private turnArrays(
+    mask: number,
+    unused: number[],
+    elig: number,
+    upper: number,
+    boxFilled: boolean,
+  ): {
+    keepValues3: Float64Array;
+    keepValues2: Float64Array;
+    e1: Float64Array;
+  } {
+    const e3 = this.computeE3(mask, unused, elig, upper, boxFilled);
+    const keepValues3 = this.transitions.matvecT(e3);
+    const e2 = this.transitions.bestKeepValue(keepValues3);
+    const keepValues2 = this.transitions.matvecT(e2);
+    const e1 = this.transitions.bestKeepValue(keepValues2);
+    return { keepValues3, keepValues2, e1 };
+  }
+
+  /** Expected value of one optimal turn from `(mask, elig, upper)`. Mirrors game_dp.py:116-149. */
+  turnValue(
+    mask: number,
+    unused: number[],
+    elig: number,
+    upper: number,
+    boxFilled: boolean,
+  ): number {
+    const { e1 } = this.turnArrays(mask, unused, elig, upper, boxFilled);
     return this.transitions.dot(this.transitions.rollProb, e1);
   }
 
@@ -174,5 +259,90 @@ export class GameEngine {
     for (let c = 0; c < NUM_CATEGORIES; c++) if (!((mask >> c) & 1)) unused.push(c);
     const boxFilled = (mask & YAHTZEE_BIT) !== 0;
     return this.turnValue(mask, unused, elig, upper, boxFilled);
+  }
+
+  /** Per-category scoring options for a specific final hand on roll 3 (must score). */
+  private scoreOptionsForHand(
+    mask: number,
+    elig: number,
+    upper: number,
+    unused: number[],
+    boxFilled: boolean,
+    handIdx: number,
+  ): CategoryOption[] {
+    // A box-filled extra Yahtzee is a forced/joker placement — the legal set differs.
+    if (boxFilled) {
+      for (let face = 0; face < NUM_FACES; face++) {
+        if (this.yahHand[face] === handIdx) {
+          return this.jokerOptions(mask, elig, upper, face);
+        }
+      }
+    }
+
+    const options: CategoryOption[] = [];
+    for (const c of unused) {
+      const newMask = mask | (1 << c);
+      const base = this.baseNormal[c * NUM_ROLLS + handIdx];
+      if (c < 6) {
+        const newUpper = Math.min(UPPER_BONUS_THRESHOLD, upper + base);
+        const upBonus =
+          upper < UPPER_BONUS_THRESHOLD && upper + base >= UPPER_BONUS_THRESHOLD
+            ? UPPER_BONUS
+            : 0;
+        const ev = base + upBonus + this.V[this.stateIndex(newMask, elig, newUpper)];
+        options.push({ category: c as Category, score: base + upBonus, ev });
+      } else if (c === Category.YAHTZEE) {
+        const ev = base + this.V[this.stateIndex(newMask, this.isYahtzeeInt[handIdx], upper)];
+        options.push({ category: c as Category, score: base, ev });
+      } else {
+        const ev = base + this.V[this.stateIndex(newMask, elig, upper)];
+        options.push({ category: c as Category, score: base, ev });
+      }
+    }
+    return options;
+  }
+
+  /**
+   * Optimal move for `dice` (ordered face values 1..6) at `rollNumber`, with ranked
+   * alternatives and expected additional scores. Rolls 1/2 advise a keep set; roll 3 advises
+   * a category. Pure and cheap (sub-millisecond) — safe to call live on every change.
+   */
+  recommend(state: TurnState, dice: number[], rollNumber: 1 | 2 | 3): Recommendation {
+    if (dice.length !== HAND_SIZE) throw new Error(`dice must have ${HAND_SIZE} values`);
+    const counts = countsFromDice(dice);
+    const handIdx = this.transitions.rollIndex.get(counts.join(","));
+    if (handIdx === undefined) throw new Error(`invalid dice: ${dice.join(",")}`);
+
+    const { mask, eligible, upper } = state;
+    const unused: number[] = [];
+    for (let c = 0; c < NUM_CATEGORIES; c++) if (!((mask >> c) & 1)) unused.push(c);
+    const boxFilled = (mask & YAHTZEE_BIT) !== 0;
+
+    if (rollNumber === 3) {
+      const alternatives = this.scoreOptionsForHand(
+        mask,
+        eligible,
+        upper,
+        unused,
+        boxFilled,
+        handIdx,
+      );
+      alternatives.sort((a, b) => b.ev - a.ev);
+      return { kind: "score", rollNumber, best: alternatives[0], alternatives, ev: alternatives[0].ev };
+    }
+
+    const { keepValues3, keepValues2 } = this.turnArrays(mask, unused, eligible, upper, boxFilled);
+    const keepValues = rollNumber === 2 ? keepValues3 : keepValues2;
+    const t = this.transitions;
+    const start = t.subkeepStarts[handIdx];
+    const end = handIdx + 1 < NUM_ROLLS ? t.subkeepStarts[handIdx + 1] : t.subkeepFlat.length;
+    const alternatives: KeepOption[] = [];
+    for (let j = start; j < end; j++) {
+      const k = t.subkeepFlat[j];
+      const keep = this.data.keeps[k];
+      alternatives.push({ keep, heldDiceIndices: mapKeepToDice(keep, dice), ev: keepValues[k] });
+    }
+    alternatives.sort((a, b) => b.ev - a.ev);
+    return { kind: "keep", rollNumber, best: alternatives[0], alternatives, ev: alternatives[0].ev };
   }
 }
