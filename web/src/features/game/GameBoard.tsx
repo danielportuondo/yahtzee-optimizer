@@ -3,6 +3,8 @@ import { Category, type Recommendation } from "../../engine/index.js";
 import { Button, EVReadout, Eyebrow, Panel } from "../../design/components/primitives.js";
 import { deriveTurnState } from "../turn-optimizer/scorecard.js";
 import { useEngine } from "../turn-optimizer/useEngine.js";
+import { useFindings } from "../../data/useFindings.js";
+import { scorePercentile } from "../../data/percentile.js";
 import { GameCoachPanel } from "./GameCoachPanel.js";
 import { GameDiceTray } from "./GameDiceTray.js";
 import { GameScorecard } from "./GameScorecard.js";
@@ -194,9 +196,13 @@ export function GameBoard() {
 }
 
 function GameSummary({ play, onNewGame }: { play: PlayState; onNewGame: () => void }) {
+  const { findings } = useFindings();
   const evLost = totalEvLost(play);
   const grade = finalGrade(evLost);
   const bd = scoreBreakdown(play);
+  const percentile = findings
+    ? scorePercentile(findings.distribution.cdf, findings.distribution.bin_width, bd.grandTotal)
+    : null;
   return (
     <Panel eyebrow="Game complete" title={undefined}>
       <div className={styles.summaryGrid}>
@@ -207,12 +213,22 @@ function GameSummary({ play, onNewGame }: { play: PlayState; onNewGame: () => vo
         <div className={styles.summaryStats}>
           <EVReadout label="Your final score" value={bd.grandTotal} unit="pts" tone="optimal" digits={0} />
           <EVReadout label="EV left on the table" value={evLost} unit="pts" tone="data" digits={1} />
+          {percentile !== null && (
+            <EVReadout label="Beats optimal games" value={percentile * 100} unit="%" tone="data" digits={0} />
+          )}
         </div>
       </div>
       <p className={styles.summaryNote}>
         Optimal play averages <span className="tnum">254.59</span>. Your decisions gave up{" "}
         <span className="tnum">{evLost.toFixed(1)}</span> expected points versus perfect play — the
         rest is the dice.
+        {percentile !== null && (
+          <>
+            {" "}
+            That final score beats <span className="tnum">{Math.round(percentile * 100)}%</span> of
+            games played to perfection.
+          </>
+        )}
       </p>
       <Button variant="primary" onClick={onNewGame}>
         Play again

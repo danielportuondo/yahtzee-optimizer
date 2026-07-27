@@ -1,9 +1,22 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { TurnOptimizer } from "./features/turn-optimizer/TurnOptimizer.js";
 import { GameBoard } from "./features/game/GameBoard.js";
+import { Writeup } from "./features/writeup/Writeup.js";
 import styles from "./App.module.css";
 
-type View = "optimizer" | "play";
+type View = "optimizer" | "play" | "findings";
+
+const TABS: { id: View; label: string }[] = [
+  { id: "optimizer", label: "Turn Optimizer" },
+  { id: "play", label: "Play vs. Optimal" },
+  { id: "findings", label: "Analysis" },
+];
+
+const PANELS: Record<View, ReactNode> = {
+  optimizer: <TurnOptimizer />,
+  play: <GameBoard />,
+  findings: <Writeup />,
+};
 
 export function App() {
   const [view, setView] = useState<View>("optimizer");
@@ -12,25 +25,20 @@ export function App() {
     <>
       <nav className={styles.nav} aria-label="Features">
         <div className={styles.tabs} role="tablist">
-          <button
-            role="tab"
-            aria-selected={view === "optimizer"}
-            className={`${styles.tab} ${view === "optimizer" ? styles.tabActive : ""}`}
-            onClick={() => setView("optimizer")}
-          >
-            Turn Optimizer
-          </button>
-          <button
-            role="tab"
-            aria-selected={view === "play"}
-            className={`${styles.tab} ${view === "play" ? styles.tabActive : ""}`}
-            onClick={() => setView("play")}
-          >
-            Play vs. Optimal
-          </button>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={view === t.id}
+              className={`${styles.tab} ${view === t.id ? styles.tabActive : ""}`}
+              onClick={() => setView(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
       </nav>
-      {view === "optimizer" ? <TurnOptimizer /> : <GameBoard />}
+      {PANELS[view]}
     </>
   );
 }
