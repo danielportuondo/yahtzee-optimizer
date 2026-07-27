@@ -57,7 +57,9 @@ describe("recommend", () => {
       const expected = engine.turnValueForState(state.mask, state.eligible, state.upper);
       expect(Math.abs(acc - expected)).toBeLessThan(1e-6);
     }
-  });
+    // 1,260 full turn-solves (5 states × 252 hands) — legitimately slow; the default 5s timeout
+    // races the CI runner, so give it explicit headroom.
+  }, 20000);
 
   it("roll 3 ranks all open categories with best = max EV", () => {
     const rec = engine.recommend({ mask: 0, eligible: 0, upper: 0 }, [2, 3, 3, 5, 6], 3);
