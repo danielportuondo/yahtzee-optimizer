@@ -90,6 +90,31 @@ export class Transitions {
     return out;
   }
 
+  /**
+   * Argmax companion to `bestKeepValue`: for each hand, the keep index attaining the segment
+   * max of `keepValues`. Strict `>` keeps the first (lowest) keep index on ties, matching the
+   * Python `_best_keep_arg` (`solver/findings.py`). Returns length NUM_ROLLS.
+   */
+  bestKeepArg(keepValues: Float64Array): Int32Array {
+    const out = new Int32Array(NUM_ROLLS);
+    const flat = this.subkeepFlat;
+    for (let ri = 0; ri < NUM_ROLLS; ri++) {
+      const start = this.subkeepStarts[ri];
+      const end = ri + 1 < NUM_ROLLS ? this.subkeepStarts[ri + 1] : flat.length;
+      let m = -Infinity;
+      let arg = flat[start];
+      for (let j = start; j < end; j++) {
+        const v = keepValues[flat[j]];
+        if (v > m) {
+          m = v;
+          arg = flat[j];
+        }
+      }
+      out[ri] = arg;
+    }
+    return out;
+  }
+
   /** Dot product of two equal-length vectors (used for `rollProb · e1`). */
   dot(a: Float64Array, b: Float64Array): number {
     let acc = 0;

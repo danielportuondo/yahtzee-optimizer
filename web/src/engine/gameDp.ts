@@ -30,6 +30,7 @@ import { isYahtzee, scoreCategory } from "./scoring.js";
 import type {
   CategoryOption,
   KeepOption,
+  OpeningKeep,
   Recommendation,
   TurnState,
 } from "./recommend.js";
@@ -259,6 +260,30 @@ export class GameEngine {
     for (let c = 0; c < NUM_CATEGORIES; c++) if (!((mask >> c) & 1)) unused.push(c);
     const boxFilled = (mask & YAHTZEE_BIT) !== 0;
     return this.turnValue(mask, unused, elig, upper, boxFilled);
+  }
+
+  /**
+   * The optimal roll-1 keep for every one of the 252 opening hands of `state`, computed with a
+   * single within-turn solve (the batch mirror of `_make_policy` in `solver/findings.py`).
+   * Each `ev` equals `recommend(state, hand, 1).best.ev` by construction — roll 1 selects from
+   * `keepValues2` — so a per-hand `recommend` call here would only redo the same turn solve 252×.
+   */
+  openingPolicy(state: TurnState): OpeningKeep[] {
+    const { mask, eligible, upper } = state;
+    const unused: number[] = [];
+    for (let c = 0; c < NUM_CATEGORIES; c++) if (!((mask >> c) & 1)) unused.push(c);
+    const boxFilled = (mask & YAHTZEE_BIT) !== 0;
+    const { keepValues2 } = this.turnArrays(mask, unused, eligible, upper, boxFilled);
+    const keep1 = this.transitions.bestKeepArg(keepValues2);
+    const out: OpeningKeep[] = [];
+    for (let h = 0; h < NUM_ROLLS; h++) {
+      const keepIndex = keep1[h];
+      const keptCounts = this.data.keeps[keepIndex];
+      let held = 0;
+      for (const n of keptCounts) held += n;
+      out.push({ handIndex: h, keepIndex, keptCounts, held, ev: keepValues2[keepIndex] });
+    }
+    return out;
   }
 
   /** Per-category scoring options for a specific final hand on roll 3 (must score). */

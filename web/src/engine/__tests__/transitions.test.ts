@@ -50,4 +50,23 @@ describe("enumeration + transition tables", () => {
     const out = tx.bestKeepValue(new Float64Array(NUM_KEEPS).fill(7));
     for (let r = 0; r < NUM_ROLLS; r++) expect(out[r]).toBe(7);
   });
+
+  it("bestKeepArg returns an index attaining bestKeepValue for every hand", () => {
+    const kv = new Float64Array(NUM_KEEPS).fill(0);
+    kv[tx.emptyKeep] = 5; // empty keep is a sub-keep of every hand
+    const arg = tx.bestKeepArg(kv);
+    const best = tx.bestKeepValue(kv);
+    expect(arg.length).toBe(NUM_ROLLS);
+    for (let r = 0; r < NUM_ROLLS; r++) {
+      expect(kv[arg[r]]).toBe(best[r]);
+      expect(arg[r]).toBe(tx.emptyKeep); // 5 is the unique max → empty keep (index 0)
+    }
+  });
+
+  it("bestKeepArg breaks ties to the lowest keep index in each segment", () => {
+    const arg = tx.bestKeepArg(new Float64Array(NUM_KEEPS).fill(3)); // all equal
+    for (let r = 0; r < NUM_ROLLS; r++) {
+      expect(arg[r]).toBe(tx.subkeepFlat[tx.subkeepStarts[r]]); // first (lowest) sub-keep
+    }
+  });
 });

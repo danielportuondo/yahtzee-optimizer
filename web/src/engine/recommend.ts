@@ -29,6 +29,20 @@ export interface KeepOption {
   ev: number;
 }
 
+/** The optimal roll-1 keep for one opening hand (see `GameEngine.openingPolicy`). */
+export interface OpeningKeep {
+  /** Index of the opening hand (0..251), into `EngineData.rolls`. */
+  handIndex: number;
+  /** Index of the optimal keep multiset (0..461), into `EngineData.keeps`. */
+  keepIndex: number;
+  /** The keep multiset (length-6 face counts). */
+  keptCounts: Counts;
+  /** Number of dice held (0..5). */
+  held: number;
+  /** Expected additional score after committing this keep (= `recommend(state, hand, 1).best.ev`). */
+  ev: number;
+}
+
 /** One scoring choice on roll 3 (must score). */
 export interface CategoryOption {
   category: Category;

@@ -9,5 +9,6 @@ export type {
   TurnState,
   KeepOption,
   CategoryOption,
+  OpeningKeep,
   Recommendation,
 } from "./recommend.js";
