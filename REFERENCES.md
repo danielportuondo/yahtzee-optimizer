@@ -31,9 +31,9 @@ build (updated in the same commit that introduces a new dependency or source).
 ## Tools & skills used
 
 - **`frontend-design` skill** — drove the "probability instrument" visual direction (tokens,
-  typography, the dice-ignite signature) instead of generic styling (Phase 4).
-- **Playwright** (via MCP) — live visual verification of the Turn Optimizer (desktop + mobile,
-  all three roll states).
+  typography, the dice-ignite signature, and the portfolio masthead) instead of generic styling.
+- **Playwright** (via MCP) — live visual verification of every tab at desktop + mobile, and
+  rendering the 1200×630 social card from the live masthead.
 
 ## Validation references
 
@@ -90,3 +90,58 @@ for `V`) so the live tool needs no server. It loads the exported tables and repr
 - **Deploy** — `.github/workflows/deploy.yml` builds `web/` and publishes `web/dist` to GitHub
   Pages ($0 static hosting). The loader uses `import.meta.env.BASE_URL`, so a later move to a
   custom domain needs no code change.
+
+## Play vs. Optimal — the game (Phase 6)
+
+`web/src/features/game/` plays a full 13-turn game and grades it live against the solver.
+`gameState.ts` is pure (no React, no RNG): each keep or score decision is graded as
+`evLost = best.ev − chosen.ev`, and the board advances by re-deriving the engine `TurnState`
+from the reused `Scorecard`, keeping every mid-game state on the reachable manifold (no `NaN`
+lookups). **Challenge** mode hides the optimum and only reveals what each decision conceded (a
+per-turn decision log); **Coach** mode surfaces the live `recommend` output. `gameState.test.ts`
+pins that the grand total reconciles to `Σ` booked totals and that a fully optimal game leaves
+~0 EV over all 13 turns.
+
+## Monte Carlo findings (Phase 7, solver)
+
+`solver/findings.py` reconstructs the optimal *policy* (the argmax `game_dp` discards) on top of
+the solved `V`, then plays a large seeded batch of games to produce what `V` alone cannot: a
+final-score distribution, P(upper bonus), P(Yahtzee), per-category point contributions, and the
+CDF the app uses for the end-game percentile. It mirrors `game_dp`'s reward/child-state
+arithmetic exactly — nothing in the DP is modified. Output is `web/public/data/findings.json`,
+committed static so the site needs no runtime. Run `uv run python -m solver.findings`;
+`test_findings.py` guards the invariants (simulated mean ≈ exact 254.59, probabilities in range,
+CDF monotone).
+
+## Analysis writeup + end-game percentile (Phase 7, web)
+
+`web/src/features/writeup/` reads `findings.json` (`src/data/loadFindings.ts`,
+`src/data/useFindings.ts`) and renders it: stat tiles, a hand-rolled SVG score histogram with
+median/mean markers, a per-box contribution bar chart, and "how to score higher" insight cards —
+every number measured, not asserted. `src/data/percentile.ts` interpolates the binned CDF for
+the "beats N% of optimal games" readout shown after a finished game in the Play tab.
+
+## Strategy Explorer (Phase 8)
+
+`web/src/features/strategy/` reconstructs the optimal policy in TS (`GameEngine.openingPolicy`,
+the mirror of the Python `_make_policy`) so a single turn-solve yields all 252 optimal
+first-roll keeps at once, instead of 252 `recommend()` calls. Two views, both read live off the
+shipped `v.f32`: **the opening book** (a sortable 252-row table, with preset board states so the
+"right" answer visibly moves) and **the value surface** (a CSS-grid heatmap of mean `V` over
+every reachable `(turn, upper-subtotal)` cell). Pure data-shaping lives in `strategyData.ts`;
+`strategyData.test.ts` checks each book row's keep + EV agrees exactly with `recommend(.., 1)`.
+
+## Portfolio frame, hero & polish
+
+Framed the tool as a portfolio piece and hardened it for sharing:
+
+- **Masthead** (`web/src/App.tsx`) above the tabs — thesis headline, author + source-repo link,
+  and a "solve" readout (`1,048,576 states → E[score] = 254.59`) that counts up once on load and
+  renders its final value immediately under `prefers-reduced-motion`. The per-tab "optimal
+  expected game score" stat was dropped so the masthead owns the number.
+- **Social / SEO** (`web/index.html`) — Open Graph + Twitter tags, `theme-color`, and a 1200×630
+  `web/public/og-cover.png` so shared links preview as the piece.
+- **Responsive fixes** — the pill tab bar scrolls instead of clipping on phones; the opening book
+  hides its least-critical column and shrinks chips below 560px.
+- **Design tokens** (`web/src/design/tokens.css`) — `--danger` unifies the error color and
+  `--chip` the dice-chip size; the value-surface legend gradient now uses tokens.
