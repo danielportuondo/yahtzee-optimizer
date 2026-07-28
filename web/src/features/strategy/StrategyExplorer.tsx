@@ -66,12 +66,6 @@ export function StrategyExplorer() {
             surface it lives on. Switch the board state to watch the “right” answer move.
           </p>
         </div>
-        {engine && (
-          <div className={styles.goldenStat}>
-            <div className={`${styles.goldenNum} tnum`}>{engine.data.V[0].toFixed(2)}</div>
-            <div className={styles.goldenCap}>Optimal expected game score</div>
-          </div>
-        )}
       </header>
 
       {loading && <div className={styles.status}>Loading the strategy table…</div>}

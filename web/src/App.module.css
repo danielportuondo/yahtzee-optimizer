@@ -1,6 +1,101 @@
-.nav {
+/* Site masthead — the portfolio frame above the tabbed instrument. */
+.masthead {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--sp-7) var(--sp-5) 0;
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-5);
+}
+
+.titleBlock {
+  max-width: 40rem;
+}
+
+.thesis {
+  font-size: clamp(2.4rem, 5.5vw, 3.4rem);
+  letter-spacing: -0.02em;
+  margin-top: var(--sp-3);
+}
+
+.sub {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  max-width: 34rem;
+  margin: var(--sp-3) 0 0;
+}
+
+.identity {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.02em;
+  color: var(--text-faint);
+  margin: var(--sp-4) 0 0;
+}
+
+.sourceLink {
+  color: var(--data);
+  text-decoration: none;
+}
+
+.sourceLink:hover {
+  color: var(--data-bright);
+  text-decoration: underline;
+}
+
+/* The "solve" readout — the number framed as the endpoint of a computation, not a bare stat. */
+.solve {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: var(--sp-1);
+}
+
+.solveChain {
+  font-size: var(--fs-small);
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+.solveResult {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+.solveEq {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-dim);
+}
+
+.solveVal {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--optimal);
+}
+
+.solveTag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Tab nav — left-aligned in the same 1080px column as the masthead and content. */
+.nav {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
   padding: var(--sp-5) var(--sp-5) 0;
 }
 
@@ -22,6 +117,7 @@
   font-family: var(--font-mono);
   font-size: var(--fs-small);
   letter-spacing: 0.06em;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease),
@@ -32,4 +128,38 @@
   background: var(--panel-2);
   color: var(--text);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+/* Masthead stacks and the pill bar scrolls rather than clipping on narrow screens. */
+@media (max-width: 640px) {
+  .masthead {
+    padding-top: var(--sp-6);
+    align-items: flex-start;
+  }
+  .solve {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .solveResult {
+    justify-content: flex-start;
+  }
+  .nav {
+    padding-left: var(--sp-4);
+    padding-right: var(--sp-4);
+  }
+  .tabs {
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab {
+    flex: 0 0 auto;
+    padding: var(--sp-2) var(--sp-3);
+    letter-spacing: 0.03em;
+  }
 }

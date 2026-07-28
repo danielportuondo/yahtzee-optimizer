@@ -64,7 +64,7 @@ export function OpeningBook({
                 </button>
               </th>
               <th>Optimal keep</th>
-              <th className={styles.numCol}>
+              <th className={`${styles.numCol} ${styles.heldCol}`}>
                 <button className={styles.sortBtn} onClick={() => onSort("held")}>
                   Held{arrow("held")}
                 </button>
@@ -101,7 +101,7 @@ export function OpeningBook({
                     </span>
                   )}
                 </td>
-                <td className={`${styles.numCol} tnum`}>{r.held}</td>
+                <td className={`${styles.numCol} ${styles.heldCol} tnum`}>{r.held}</td>
                 <td className={`${styles.numCol} ${styles.evCell} tnum`}>{r.ev.toFixed(2)}</td>
               </tr>
             ))}

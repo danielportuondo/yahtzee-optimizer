@@ -36,32 +36,6 @@
   gap: var(--sp-4);
 }
 
-.goldenStat {
-  text-align: right;
-  border-left: 2px solid var(--optimal);
-  padding-left: var(--sp-4);
-}
-
-.goldenNum {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1.7rem;
-  font-weight: 600;
-  color: var(--optimal);
-  line-height: 1;
-}
-
-.goldenCap {
-  font-family: var(--font-mono);
-  font-size: var(--fs-eyebrow);
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin-top: var(--sp-2);
-  max-width: 12rem;
-  margin-left: auto;
-}
-
 /* Segmented mode toggle */
 .segment {
   display: inline-flex;
@@ -152,12 +126,6 @@
   }
   .headerSide {
     align-items: flex-start;
-  }
-  .goldenStat {
-    text-align: left;
-  }
-  .goldenCap {
-    margin-left: 0;
   }
 }
 
@@ -340,20 +308,71 @@
   color: var(--text);
 }
 
-/* Challenge feedback */
-.lastGrade {
+/* Challenge decision log — fills the left column with the game's graded history. */
+.logEmpty {
   margin-top: var(--sp-4);
-  min-height: 1.2em;
+  color: var(--text-faint);
+  font-size: var(--fs-small);
+}
+
+.log {
+  margin-top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.logHead {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.logList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.logRow {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--line);
   font-family: var(--font-mono);
   font-size: var(--fs-small);
 }
 
-.gradeGood {
-  color: var(--data-bright);
+.logTurn {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
-.gradeMiss {
+.logLabel {
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logOptimal {
+  color: var(--data-bright);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.logMiss {
   color: var(--optimal-bright);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 /* End-game summary */
@@ -408,7 +427,7 @@
 }
 
 .statusErr {
-  color: #ff8f8f;
+  color: var(--danger);
 }
 
 /* Footer */

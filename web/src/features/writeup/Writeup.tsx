@@ -31,14 +31,6 @@ export function Writeup() {
             actually does — and what it means for your own game.
           </p>
         </div>
-        {findings && (
-          <div className={styles.goldenStat}>
-            <div className={`${styles.goldenNum} tnum`}>
-              {findings.optimal_expected_score.toFixed(2)}
-            </div>
-            <div className={styles.goldenCap}>Optimal expected game score</div>
-          </div>
-        )}
       </header>
 
       {loading && <div className={styles.status}>Loading findings…</div>}

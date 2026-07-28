@@ -13,8 +13,6 @@ import {
 import { useEngine } from "./useEngine.js";
 import styles from "./turnOptimizer.module.css";
 
-const GOLDEN = 254.59;
-
 export function TurnOptimizer() {
   const { engine, loading, error } = useEngine();
   const [dice, setDice] = useState<number[]>([1, 2, 3, 4, 5]);
@@ -49,10 +47,6 @@ export function TurnOptimizer() {
             Set your dice and where you are in the turn. The optimizer solves the within-turn
             dynamic program live and returns the play that maximizes your expected final score.
           </p>
-        </div>
-        <div className={styles.goldenStat}>
-          <div className={`${styles.goldenNum} tnum`}>{GOLDEN.toFixed(2)}</div>
-          <div className={styles.goldenCap}>Optimal expected game score</div>
         </div>
       </header>
 

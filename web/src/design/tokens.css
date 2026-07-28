@@ -37,6 +37,9 @@
   --data-bright: #74e9d5;
   --data-weak: rgba(79, 214, 192, 0.12);
 
+  /* Status — errors read as errors, not as an accent */
+  --danger: #ff8f8f;
+
   /* Type */
   --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
@@ -68,6 +71,9 @@
   --r-lg: 16px;
   --r-die: 15px;
 
+  /* Dice-chip idiom (opening book + cheat sheet share one size) */
+  --chip: 1.4rem;
+
   /* Motion */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --dur-fast: 120ms;
@@ -91,6 +97,7 @@ body {
   min-height: 100vh;
   background:
     radial-gradient(120% 80% at 50% -10%, #141a26 0%, var(--ink) 55%) fixed;
+  background-color: var(--ink);
   color: var(--text);
   font-family: var(--font-body);
   font-size: var(--fs-body);

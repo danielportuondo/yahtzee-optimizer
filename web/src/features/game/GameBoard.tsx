@@ -17,12 +17,10 @@ import {
   isGameOver,
   scoreBreakdown,
   totalEvLost,
-  type Grade,
   type PlayState,
 } from "./gameState.js";
 import styles from "./game.module.css";
 
-const GOLDEN = 254.59;
 type Mode = "challenge" | "coach";
 
 export function GameBoard() {
@@ -32,7 +30,6 @@ export function GameBoard() {
   const [held, setHeld] = useState<Set<number>>(() => new Set());
   const [rollNumber, setRollNumber] = useState<1 | 2 | 3>(1);
   const [mode, setMode] = useState<Mode>("challenge");
-  const [lastGrade, setLastGrade] = useState<Grade | null>(null);
 
   const over = isGameOver(play);
   const ready = !!engine && !over;
@@ -72,7 +69,6 @@ export function GameBoard() {
     if (!engine || rollNumber === 3) return;
     const grade = gradeKeep(play, dice, held, rollNumber, engine);
     setPlay((p) => ({ ...p, grades: [...p.grades, grade] }));
-    setLastGrade(grade);
     setDice(rollDice(dice, held));
     const next = (rollNumber + 1) as 1 | 2 | 3;
     setRollNumber(next);
@@ -83,13 +79,11 @@ export function GameBoard() {
     if (!engine || over) return;
     const nextPlay = applyBooking(play, category, dice, rollNumber, engine);
     setPlay(nextPlay);
-    setLastGrade(nextPlay.grades[nextPlay.grades.length - 1]);
     if (!isGameOver(nextPlay)) startTurn();
   }
 
   function newGame() {
     setPlay(emptyPlay());
-    setLastGrade(null);
     startTurn();
   }
 
@@ -117,10 +111,6 @@ export function GameBoard() {
                 {m === "challenge" ? "CHALLENGE" : "COACH"}
               </button>
             ))}
-          </div>
-          <div className={styles.goldenStat}>
-            <div className={`${styles.goldenNum} tnum`}>{GOLDEN.toFixed(2)}</div>
-            <div className={styles.goldenCap}>Optimal expected game score</div>
           </div>
         </div>
       </header>
@@ -170,7 +160,7 @@ export function GameBoard() {
             <GameCoachPanel
               mode={mode}
               rec={rec}
-              lastGrade={lastGrade}
+              grades={play.grades}
               totalEvLost={totalEvLost(play)}
             />
           )}

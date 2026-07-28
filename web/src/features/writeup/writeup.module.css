@@ -31,30 +31,6 @@
   font-size: 1.05rem;
 }
 
-.goldenStat {
-  text-align: right;
-  border-left: 2px solid var(--optimal);
-  padding-left: var(--sp-4);
-}
-
-.goldenNum {
-  font-size: 1.7rem;
-  font-weight: 600;
-  color: var(--optimal);
-  line-height: 1;
-}
-
-.goldenCap {
-  font-family: var(--font-mono);
-  font-size: var(--fs-eyebrow);
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin-top: var(--sp-2);
-  max-width: 12rem;
-  margin-left: auto;
-}
-
 .status {
   padding: var(--sp-5);
   color: var(--text-dim);
@@ -63,7 +39,7 @@
 }
 
 .statusErr {
-  color: var(--optimal-bright);
+  color: var(--danger);
 }
 
 /* Stat tiles */
@@ -255,8 +231,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--chip);
+  height: var(--chip);
   border-radius: var(--r-sm);
   background: var(--panel-2);
   border: 1px solid var(--line-strong);
