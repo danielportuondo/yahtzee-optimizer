@@ -109,6 +109,22 @@
   color: var(--data-bright);
 }
 
+/* Undo + New game sit together on the right: the first button's auto margin
+   pulls the pair over, the second keeps only a small gap. */
+.newGame + .newGame {
+  margin-left: var(--sp-2);
+}
+
+.newGame:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.newGame:disabled:hover {
+  border-color: var(--line-strong);
+  color: var(--text-dim);
+}
+
 /* Main layout */
 .grid {
   display: grid;

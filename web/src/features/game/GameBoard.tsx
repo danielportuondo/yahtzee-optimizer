@@ -23,6 +23,17 @@ import styles from "./game.module.css";
 
 type Mode = "challenge" | "coach";
 
+/**
+ * Pre-action snapshot for undo. Safe to hold by reference: play/dice/held are all replaced,
+ * never mutated, on every state change.
+ */
+interface Snapshot {
+  play: PlayState;
+  dice: number[];
+  held: Set<number>;
+  rollNumber: 1 | 2 | 3;
+}
+
 export function GameBoard() {
   const { engine, loading, error } = useEngine();
   const [play, setPlay] = useState<PlayState>(emptyPlay);
@@ -30,6 +41,7 @@ export function GameBoard() {
   const [held, setHeld] = useState<Set<number>>(() => new Set());
   const [rollNumber, setRollNumber] = useState<1 | 2 | 3>(1);
   const [mode, setMode] = useState<Mode>("challenge");
+  const [history, setHistory] = useState<Snapshot[]>([]);
 
   const over = isGameOver(play);
   const ready = !!engine && !over;
@@ -67,6 +79,7 @@ export function GameBoard() {
 
   function reroll() {
     if (!engine || rollNumber === 3) return;
+    setHistory((h) => [...h, { play, dice, held, rollNumber }]);
     const grade = gradeKeep(play, dice, held, rollNumber, engine);
     setPlay((p) => ({ ...p, grades: [...p.grades, grade] }));
     setDice(rollDice(dice, held));
@@ -77,13 +90,26 @@ export function GameBoard() {
 
   function assign(category: Category) {
     if (!engine || over) return;
+    setHistory((h) => [...h, { play, dice, held, rollNumber }]);
     const nextPlay = applyBooking(play, category, dice, rollNumber, engine);
     setPlay(nextPlay);
     if (!isGameOver(nextPlay)) startTurn();
   }
 
+  /** Restore the exact pre-action state (dice faces included — nothing rerolls). */
+  function undo() {
+    const last = history[history.length - 1];
+    if (!last) return;
+    setHistory((h) => h.slice(0, -1));
+    setPlay(last.play);
+    setDice(last.dice);
+    setHeld(last.held);
+    setRollNumber(last.rollNumber);
+  }
+
   function newGame() {
     setPlay(emptyPlay());
+    setHistory([]);
     startTurn();
   }
 
@@ -125,6 +151,9 @@ export function GameBoard() {
         <span className={styles.statusItem}>
           EV lost <b className="tnum">{totalEvLost(play).toFixed(1)}</b>
         </span>
+        <button className={styles.newGame} onClick={undo} disabled={history.length === 0}>
+          Undo
+        </button>
         <button className={styles.newGame} onClick={newGame}>
           New game
         </button>

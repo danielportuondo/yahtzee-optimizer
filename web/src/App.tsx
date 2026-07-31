@@ -9,8 +9,8 @@ import styles from "./App.module.css";
 type View = "optimizer" | "play" | "strategy" | "findings";
 
 const TABS: { id: View; label: string }[] = [
-  { id: "optimizer", label: "Turn Optimizer" },
   { id: "play", label: "Play vs. Optimal" },
+  { id: "optimizer", label: "Turn Optimizer" },
   { id: "strategy", label: "Strategy Explorer" },
   { id: "findings", label: "Analysis" },
 ];
@@ -99,7 +99,7 @@ function Masthead() {
 }
 
 export function App() {
-  const [view, setView] = useState<View>("optimizer");
+  const [view, setView] = useState<View>("play");
 
   return (
     <>
